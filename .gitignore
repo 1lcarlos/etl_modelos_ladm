@@ -1,0 +1,11 @@
+logs
+version_ubuntu
+.env
+.env.example
+actualizacion_atributos
+backup
+.claude
+__pycache__
+sql
+comandos_psql.sh
+recomendaciones.md

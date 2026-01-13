@@ -1,0 +1,11 @@
+# requirements.txt
+# Dependencias necesarias para el ETL PostgreSQL
+
+# Driver PostgreSQL principal
+psycopg2-binary==2.9.7
+
+# Dependencias adicionales para logging y utilidades
+python-dotenv==1.0.0
+
+# Para manejo avanzado de pools de conexión (opcional)
+psycopg2-pool==1.1
