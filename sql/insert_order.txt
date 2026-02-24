@@ -1,0 +1,87 @@
+# Orden de ejecucion de INSERTs para migracion a SINIC
+# Fecha: 2026-02-02
+#
+# Este archivo define el orden correcto de ejecucion de los INSERTs
+# respetando las dependencias entre tablas.
+#
+# Formato: nombre_archivo_insert.sql
+# Las lineas que comienzan con # son comentarios
+
+# ============================================
+# FASE 1: Entidades principales independientes
+# ============================================
+
+# Predio - tabla principal
+01_insert_sinic_predio.sql
+
+
+# Terreno - geometria del predio
+02_insert_cr_terreno.sql
+
+# Interesados individuales
+04_insert_cr_interesado.sql
+
+# Agrupaciones de interesados
+05_insert_cr_agrupacioninteresados.sql
+
+# Fuentes administrativas
+11_insert_cr_fuenteadministrativa.sql
+
+# Caracteristicas de unidades de construccion
+08_insert_cr_caracteristicasunidadconstruccion.sql
+
+# ============================================
+# FASE 2: Entidades dependientes
+# ============================================
+
+# Unidades de construccion (depende de caracteristicas)
+09_insert_cr_unidadconstruccion.sql
+
+# Miembros de agrupaciones (depende de interesados y agrupaciones)
+06_insert_col_miembros.sql
+
+# ============================================
+# FASE 3: Relaciones y derechos
+# ============================================
+
+# Relacion predio-terreno
+03_insert_col_uebaunit_terreno.sql
+
+# Relacion predio-unidadconstruccion
+10_insert_col_uebaunit_unidadconstruccion.sql
+
+# Derechos catastrales (depende de predio, interesados, agrupaciones)
+07_insert_sinic_derechocatastral.sql
+
+# ============================================
+# FASE 4: Relaciones adicionales
+# ============================================
+
+# Relaciones RRR-Fuente (depende de derechos y fuentes)
+15_insert_col_rrrfuente.sql
+
+# Relaciones Unidad-Fuente (depende de predio y fuentes)
+16_insert_col_unidadfuente.sql
+
+# ============================================
+# FASE 5: Tablas complementarias
+# ============================================
+
+# Direcciones (depende de predio)
+12_insert_extdireccion.sql
+
+# Copropiedad (depende de predio)
+13_insert_cr_predio_copropiedad.sql
+
+# Informalidad (depende de predio)
+14_insert_cr_predio_informalidad.sql
+
+
+# Tramites
+017_insert_tramites.sql
+
+# Relacion entre Predio y Tramites
+018_insert_predio_tramite.sql
+
+# Avaluos
+019_insert_gc_estructuraavaluo.sql

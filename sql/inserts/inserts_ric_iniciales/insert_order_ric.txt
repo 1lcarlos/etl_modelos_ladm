@@ -1,0 +1,74 @@
+# Orden de ejecucion de INSERTs para modelo RIC
+# Los archivos se ejecutan en este orden para respetar las dependencias
+# Fecha: 2025-12-18 (Actualizado)
+#
+# IMPORTANTE: Este archivo define el orden de insercion para las tablas RIC
+# Los numeros al inicio de cada archivo indican la secuencia de ejecucion
+
+# =============================================================================
+# FASE 1: TABLAS DE CATALOGO/CONFIGURACION (sin dependencias)
+# =============================================================================
+01_insert_ric_gestorcatastral.sql
+02_insert_ric_operadorcatastral.sql
+
+# =============================================================================
+# FASE 2: TABLAS PRINCIPALES (predios, terrenos, construcciones)
+# =============================================================================
+03_insert_ric_predio.sql
+04_insert_ric_terreno.sql
+12_insert_ric_construccion.sql
+13_insert_ric_caracteristicasunidadconstruccion.sql
+14_insert_ric_unidadconstruccion.sql
+
+# =============================================================================
+# FASE 3: RELACIONES TERRENO/CONSTRUCCION - PREDIO
+# =============================================================================
+05_insert_col_uebaunit.sql
+23_insert_col_uebaunit_unidadconstruccion.sql
+28_insert_col_uebaunit_construccion.sql
+
+# =============================================================================
+# FASE 4: INTERESADOS Y AGRUPACIONES
+# =============================================================================
+06_insert_ric_interesado.sql
+07_insert_ric_agrupacioninteresados.sql
+09_insert_col_miembros.sql
+
+# =============================================================================
+# FASE 5: FUENTES (administrativas y espaciales)
+# =============================================================================
+08_insert_ric_fuenteadministrativa.sql
+24_insert_ric_fuenteespacial.sql
+
+# =============================================================================
+# FASE 6: DERECHOS Y RELACIONES CON FUENTES
+# =============================================================================
+10_insert_ric_derecho.sql
+11_insert_col_rrrfuente.sql
+22_insert_col_unidadfuente.sql
+
+# =============================================================================
+# FASE 7: PUNTOS Y LINDEROS
+# =============================================================================
+15_insert_ric_nu_punto_lindero.sql
+16_insert_ric_nu_punto_control.sql
+17_insert_ric_nu_caraslindero.sql
+
+# =============================================================================
+# FASE 8: RELACIONES TOPOLOGICAS (puntos-linderos, linderos-terrenos)
+# =============================================================================
+19_insert_col_masccl.sql
+20_insert_col_menosccl.sql
+21_insert_col_puntoccl.sql
+
+# =============================================================================
+# FASE 9: DIRECCIONES
+# =============================================================================
+18_insert_extdireccion.sql
+
+# =============================================================================
+# FASE 10: RELACIONES ENTRE PREDIOS (copropiedad, informalidad, condominio)
+# =============================================================================
+25_insert_ric_predio_copropiedad.sql
+26_insert_ric_predio_informalidad.sql
+27_insert_ric_datosphcondominio.sql

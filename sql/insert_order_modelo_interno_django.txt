@@ -1,0 +1,94 @@
+# Orden de ejecucion de inserts para migracion CCA -> Modelo Interno Django
+# Fecha: 2026-02-06
+#
+# DIFERENCIAS CON MODELO INTERLIS:
+# - PK es 'id' auto-generado (no t_id con nextval)
+# - No existe t_ili_tid
+# - Dominios usan text_code (no ilicode) y FK apunta a 'id' (no t_id)
+# - Tabla DLC en vez de GC para datos adicionales levantamiento catastral
+#
+# FASE 1: Predios (sin dependencias)
+01_insert_gc_predio.sql
+
+# FASE 2: Terrenos (depende de gc_predio)
+02_insert_gc_terreno.sql
+
+# FASE 3: Direcciones (depende de gc_predio)
+03_insert_extdireccion.sql
+
+# FASE 4: Relacion terreno-predio (depende de gc_predio + gc_terreno)
+04_insert_col_uebaunit_terreno.sql
+
+# FASE 5: Datos adicionales levantamiento catastral (depende de gc_predio)
+05_insert_dlc_datosadicionaleslevantamientocatastral.sql
+
+# FASE 6: Estructura novedad numero predial (depende de FASE 5)
+# NOTA: Tabla no encontrada en backup parcial, verificar existencia en esquema completo
+06_insert_gc_estructuranovedadnumeropredial.sql
+
+# FASE 7: Construcciones (depende de gc_predio)
+07_insert_gc_construccion.sql
+
+# FASE 8: Caracteristicas unidad construccion (independiente, solo depende de dominios)
+08_insert_gc_caracteristicasunidadconstruccion.sql
+
+# FASE 9: Unidades de construccion (depende de FASE 7 + FASE 8)
+09_insert_gc_unidadconstruccion.sql
+
+# FASE 10: Relacion construccion-predio (depende de gc_predio + gc_construccion)
+10_insert_col_uebaunit_construccion.sql
+
+# FASE 11: Relacion unidadconstruccion-predio (depende de gc_predio + gc_unidadconstruccion)
+11_insert_col_uebaunit_unidadconstruccion.sql
+
+# FASE 12: Calificacion convencional (depende de gc_caracteristicasunidadconstruccion)
+12_insert_cuc_calificacionconvencional.sql
+
+# FASE 13: Grupos de calificacion (depende de FASE 12)
+# Normaliza estructura plana CCA en 5 grupos: Estructura, Acabados, Banio, Cocina, Cerchas
+# IDs generados: cca_calificacion_id * 10 + grupo_offset (1-5)
+13_insert_cuc_grupocalificacion.sql
+
+# FASE 14: Objetos de construccion (depende de FASE 13)
+# Normaliza cada componente en filas individuales: armazon, muros, cubierta, fachada, etc.
+# IDs generados: cca_calificacion_id * 100 + grupo_offset * 10 + objeto_offset
+# Mapeo dominio: 'Prefijo.' + ilicode -> text_code en cuc_objetoconstrucciontipo
+14_insert_cuc_objetoconstruccion.sql
+
+# FASE 15: Calificacion no convencional (depende de gc_caracteristicasunidadconstruccion)
+# Datos vienen de cca_caracteristicasunidadconstruccion.tipo_anexo (no existe tabla CCA separada)
+# Solo se insertan registros con tipo_anexo no nulo
+15_insert_cuc_calificacionnoconvencional.sql
+
+# FASE 16: Interesados (independiente, solo depende de dominios)
+# Mapeo especial grupo_etnico: Rrom->Gitano, Negro_Afrocolombiano->Afrocolombiano, Palenquero->Palanquero
+16_insert_gc_interesado.sql
+
+# FASE 17: Agrupacion de interesados (independiente, puede ejecutarse en paralelo con FASE 16)
+17_insert_gc_agrupacioninteresados.sql
+
+# FASE 18: Miembros (depende de FASE 16 + FASE 17)
+# Relaciona interesados con agrupaciones, incluye participacion (0.0 a 1.0)
+18_insert_col_miembros.sql
+
+# FASE 19: Derechos (depende de FASE 1 + FASE 16 + FASE 17)
+# CCA fraccion_derecho 0-100 -> Django 0-1 (dividir entre 100)
+# CCA observacion -> Django descripcion, CCA predio -> Django baunit
+# CCA cuota_participacion y origen_derecho no existen en Django (se pierden)
+19_insert_gc_derecho.sql
+
+# FASE 20: Fuentes administrativas (independiente, solo depende de dominios)
+# CCA observacion -> Django descripcion
+# Django valor_transaccion y estado_disponibilidad no existen en CCA (NULL)
+20_insert_gc_fuenteadministrativa.sql
+
+# FASE 21: Relacion fuente administrativa-derecho (depende de FASE 19 + FASE 20)
+# CCA cca_fuenteadministrativa_derecho -> Django col_rrrfuente
+# rrr_gc_restriccion = NULL (solo aplica para relacion derecho-fuente)
+21_insert_col_rrrfuente.sql
+
+# FASE 22: Relacion fuente administrativa-predio (depende de FASE 1 + FASE 20)
+# En CCA la relacion es indirecta: fuente -> derecho -> predio
+# En Django es directa: fuente_administrativa -> unidad (predio)
+# Se usa DISTINCT para evitar duplicados
+22_insert_col_unidadfuente.sql

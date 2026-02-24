@@ -1,0 +1,25 @@
+# Orden de ejecución de inserts para migración CCA -> GC
+# Fecha: 2026-02-04
+#
+01_insert_gc_predio.sql
+02_insert_gc_terreno.sql
+03_insert_extdireccion.sql
+04_insert_col_uebaunit_terreno.sql
+05_insert_dlc_datosadicionaleslevantamientocatastral.sql
+06_insert_gc_estructuranovedadnumeropredial.sql
+07_insert_gc_construccion.sql
+10_insert_col_uebaunit_construccion.sql
+08_insert_gc_caracteristicasunidadconstruccion.sql
+09_insert_gc_unidadconstruccion.sql
+11_insert_col_uebaunit_unidadconstruccion.sql
+12_insert_cuc_calificacionconvencional.sql
+13_insert_cuc_grupocalificacion.sql
+14_insert_cuc_objetoconstruccion.sql
+15_insert_cuc_calificacionnoconvencional.sql
+16_insert_gc_interesado.sql
+17_insert_gc_agrupacioninteresados.sql
+18_insert_col_miembros.sql
+19_insert_gc_derecho.sql
+20_insert_gc_fuenteadministrativa.sql
+21_insert_col_rrrfuente.sql
+22_insert_col_unidadfuente.sql

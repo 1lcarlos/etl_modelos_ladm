@@ -1,0 +1,30 @@
+# Orden de ejecución de inserts para migración CCA -> GC
+# Fecha: 2026-02-05
+#
+# ============================================================
+# MIGRACION MODELO CCA (Catastro) A MODELO GC (Gestion Catastral)
+# ============================================================
+#
+# FASE 1: PREDIO (tabla base - sin dependencias)
+# El predio es la entidad principal, todas las demas dependen de el
+03_insert_gc_predio.sql
+
+# FASE 2: TERRENO (depende de gc_predio)
+# Los terrenos estan relacionados a predios
+04_insert_gc_terreno.sql
+
+# FASE 3: DIRECCIONES (depende de gc_predio)
+# Las direcciones estan asociadas a predios
+05_insert_extdireccion.sql
+
+# FASE 4: RELACION TERRENO-PREDIO (depende de gc_predio y gc_terreno)
+# Tabla intermedia que relaciona terrenos con predios (col_uebaunit)
+06_insert_col_uebaunit_terreno.sql
+
+# FASE 5: DATOS ADICIONALES LEVANTAMIENTO CATASTRAL (depende de gc_predio)
+# Informacion adicional del levantamiento catastral
+01_insert_gc_datosadicionaleslevantamientocatastral.sql
+
+# FASE 6: ESTRUCTURA NOVEDAD NUMERO PREDIAL (depende de gc_datosadicionaleslevantamientocatastral)
+# Estructura de novedades de numero predial
+02_insert_gc_estructuranovedadnumeropredial.sql

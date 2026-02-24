@@ -1,0 +1,31 @@
+{
+    "origen": {
+        "host": "servidor_origen",
+        "port": "5432",
+        "database": "nombre_base_origen",
+        "user": "usuario_origen",
+        "password": "password_origen",
+        "schema": "nombre_esquema"
+    },
+    "destino": {
+        "host": "localhost",
+        "port": "5432",
+        "database": "nombre_base_destino",
+        "user": "usuario_destino",
+        "password": "password_destino",
+        "schema": "nombre_esquema"
+    },
+    "paths": {
+        "queries": "C:/ruta/al/proyecto/sql/queries/queries_sinic",
+        "inserts": "C:/ruta/al/proyecto/sql/inserts/sinic_inserts",
+        "order_file": "C:/ruta/al/proyecto/sql/insert_order.txt",
+        "logs": "C:/ruta/al/proyecto/logs"
+    },
+    "options": {
+        "batch_size": "1000",
+        "pool_size": "5",
+        "truncate_enabled": true,
+        "truncate_cascade": true,
+        "dry_run": false
+    }
+}
