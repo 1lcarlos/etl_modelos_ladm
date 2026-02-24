@@ -9,3 +9,8 @@ __pycache__
 sql
 comandos_psql.sh
 recomendaciones.md
+.gitignore
+*.json
+*.sql
+.claude
+*.txt
