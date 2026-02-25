@@ -10,6 +10,7 @@ INSERT INTO {schema}.cr_predio_copropiedad (
     t_id,
     --t_basket,
     coeficiente,
+    area_catastral_terreno_coeficiente,
     matriz,
     unidad_predial
 )
@@ -18,7 +19,14 @@ SELECT
     --(SELECT t_id FROM {schema}.t_ili2db_basket LIMIT 1),
 
     -- coeficiente
-    pc.coeficiente,
+    pc.coeficiente::numeric,
+
+    --area_catastral_terreno_coeficiente
+    --coalsece(0, pc.area_catastral_terreno_coeficiente), -- Si es NULL, se asume 0
+    --pc.area_catastral_terreno_coeficiente,
+     0,
+    
+
 
     -- matriz: referencia al predio matriz
     CASE

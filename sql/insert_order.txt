@@ -85,3 +85,17 @@
 
 # Avaluos
 019_insert_gc_estructuraavaluo.sql
+
+#Subpaquete de Topografia
+
+031_insert_gc_lindero.sql
+
+032_insert_gc_puntolindero.sql
+
+035_insert_gc_puntocontrol.sql
+
+033_insert_col_puntoccl.sql
+
+034_insert_col_menosccl.sql
+
+036_insert_col_masccl.sql

@@ -44,7 +44,7 @@ SELECT
      CASE
         WHEN ed.localizacion IS NOT NULL 
         THEN ST_Force3D(ed.localizacion::geometry(pointz, 9377))
-        ELSE ST_Force3D(ST_Point(4839656.153815 , 2064698.290845 , 9377))                           
+        ELSE ST_Force3D(ST_Point(4810009.6808 , 2075459.5479 , 9377))                       
     END,
 
     -- codigo_postal
@@ -71,8 +71,13 @@ SELECT
     -- complemento
     ed.complemento,
 
-    -- nombre_predio
-    ed.nombre_predio,
+    -- nombre_predio   
+
+    CASE
+        WHEN ed.nombre_predio IN ('', NULL) THEN 'Sin_dirección' 
+        ELSE ed.nombre_predio
+    END,
+
 
     -- sector_ciudad: Mapeo a extdireccion_sector_ciudad
     (SELECT t_id FROM {schema}.extdireccion_sector_ciudad WHERE ilicode = ed.sector_ciudad LIMIT 1),

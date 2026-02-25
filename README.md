@@ -7,7 +7,7 @@ Sistema ETL para migrar datos catastrales entre modelos PostgreSQL siguiendo el 
 ```
 etl/
 ├── main.py                  # Punto de entrada CLI
-├── gui.py                   # Interfaz grafica (Tkinter)
+├── gui.py                   # Interfaz grafica (Tkinter) - soporta esquema unico y multi-esquema
 ├── run_gui.bat              # Lanzador de la GUI en Windows
 ├── requirements.txt         # Dependencias Python
 ├── .env.example             # Plantilla de variables de entorno
@@ -15,8 +15,8 @@ etl/
 ├── config/
 │   └── config.py            # Configuracion centralizada (lee .env)
 ├── src/
-│   ├── database_manager.py  # Conexiones, pools, TRUNCATE, tablas temporales
-│   ├── etl_processor.py     # Orquestador del flujo ETL
+│   ├── database_manager.py  # Conexiones, pools, TRUNCATE, tablas temporales, listado de esquemas
+│   ├── etl_processor.py     # Orquestador del flujo ETL (soporta callbacks de progreso y error)
 │   └── logger.py            # Sistema de logging con rotacion
 └── sql/
     ├── queries/             # SELECT de extraccion por modelo
@@ -90,7 +90,19 @@ El archivo `.env` contiene toda la configuracion del ETL. Copie `.env.example` c
 
 ### Archivo de despliegue (`etl_config.json`)
 
-Alternativa al `.env` para despliegues puntuales donde se necesita especificar rutas absolutas a los archivos SQL y conexiones directas. Copie `etl_config.example.json` como plantilla. La GUI (`gui.py`) utiliza este archivo para cargar la configuracion.
+Alternativa al `.env` para despliegues puntuales donde se necesita especificar rutas absolutas a los archivos SQL y conexiones directas. Copie `etl_config.example.json` como plantilla. La GUI (`gui.py`) utiliza este archivo para cargar y guardar la configuracion.
+
+Campos principales del JSON:
+
+| Seccion | Campo | Descripcion |
+|---------|-------|-------------|
+| `origen` | `host`, `port`, `database`, `user`, `password` | Conexion a BD origen |
+| `destino` | `host`, `port`, `database`, `user`, `password` | Conexion a BD destino |
+| *(raiz)* | `schema` | Esquema para modo unico (ej: `"cun25436"`) |
+| `paths` | `queries`, `inserts`, `order_file`, `logs` | Rutas absolutas a carpetas SQL y logs |
+| `options` | `batch_size`, `pool_size`, `truncate_enabled`, `truncate_cascade`, `dry_run` | Opciones de ejecucion |
+| `options` | `schema_mode` | Modo de esquemas: `"single"` o `"multi"` |
+| *(raiz)* | `schemas` | Lista de esquemas para modo multi (ej: `["cun25436", "cun25489"]`) |
 
 ### TRUNCATE
 
@@ -141,6 +153,33 @@ python gui.py
 
 La GUI permite configurar conexiones, seleccionar esquemas, elegir el conjunto de SQL (queries/inserts) y ejecutar el ETL visualmente. Lee la configuracion desde `etl_config.json`.
 
+#### Pestanas de la GUI
+
+| Pestana | Descripcion |
+|---------|-------------|
+| **BD Origen** | Host, puerto, base de datos, usuario y contrasena del servidor origen (sin esquema) |
+| **BD Destino** | Host, puerto, base de datos, usuario y contrasena del servidor destino (sin esquema) |
+| **Esquemas** | Seleccion de esquema unico o multiples esquemas (ver seccion siguiente) |
+| **Rutas SQL** | Carpetas de queries, inserts, archivo de orden y carpeta de logs |
+| **Opciones** | Tamano de lote, pool de conexiones, TRUNCATE y modo dry-run |
+
+#### Migracion multi-esquema (GUI)
+
+La pestana **Esquemas** permite elegir entre dos modos de migracion:
+
+- **Esquema unico**: Comportamiento clasico. Se ingresa un nombre de esquema que se usa como origen y destino.
+- **Multiples esquemas**: Permite consultar los esquemas disponibles en la BD origen y seleccionar cuales migrar. Cada esquema se procesa secuencialmente.
+
+Flujo en modo multiples esquemas:
+
+1. Seleccionar el modo "Multiples esquemas" en la pestana Esquemas.
+2. Hacer clic en **Consultar Esquemas** para listar los esquemas disponibles en la BD origen (requiere conexion configurada en la pestana BD Origen).
+3. Seleccionar los esquemas deseados haciendo clic en cada uno (o usar **Seleccionar Todos** / **Deseleccionar Todos**).
+4. Hacer clic en **Ejecutar ETL**. Se muestra un dialogo de confirmacion con la lista de esquemas a migrar.
+5. Durante la ejecucion, la barra de progreso y el estado muestran `Esquema X/N: nombre_esquema`.
+6. Si un esquema falla, se muestra un dialogo preguntando si se desea continuar con los restantes.
+7. Al finalizar se muestra un reporte con el resultado de todos los esquemas.
+
 ## Estructura SQL
 
 ### Queries (`sql/queries/`)
@@ -185,27 +224,36 @@ Ver `sql/verificacion/README.md` para instrucciones detalladas.
 ```
 1. Conectar a bases de datos (origen y destino)
          |
-2. Analizar insert_order.txt -> identificar tablas destino
+2. Para cada esquema (1..N):
+   |
+   2a. Notificar progreso: "Esquema X/N: nombre"
          |
-3. TRUNCATE tablas destino (si esta habilitado)
-   - Muestra advertencia y pide confirmacion
-   - Ejecuta TRUNCATE CASCADE
-   - Omite tablas que no existen
+   2b. Analizar insert_order.txt -> identificar tablas destino
          |
-4. Ejecutar queries de extraccion (origen -> tablas temporales en destino)
-   - Queries con datos: crea tabla temporal con registros
-   - Queries sin datos: crea tabla temporal vacia (no interrumpe el proceso)
+   2c. TRUNCATE tablas destino (si esta habilitado)
+       - Muestra advertencia y pide confirmacion (CLI)
+       - Ejecuta TRUNCATE CASCADE
+       - Omite tablas que no existen
          |
-5. Validar dependencias entre tablas temporales e inserts
+   2d. Ejecutar queries de extraccion (origen -> tablas temporales en destino)
+       - Queries con datos: crea tabla temporal con registros
+       - Queries sin datos: crea tabla temporal vacia (no interrumpe el proceso)
          |
-6. Ejecutar inserts en orden definido
-   - Mapeo de dominios (ilicode -> text_code -> FK id)
-   - Transformaciones especiales por tabla
-   - Si un insert falla, continua con el siguiente
+   2e. Validar dependencias entre tablas temporales e inserts
          |
-7. Limpiar tablas temporales
+   2f. Ejecutar inserts en orden definido
+       - Mapeo de dominios (ilicode -> text_code -> FK id)
+       - Transformaciones especiales por tabla
+       - Si un insert falla, continua con el siguiente
          |
-8. Generar reporte final con estadisticas
+   2g. Limpiar tablas temporales
+         |
+   2h. Si el esquema fallo y hay mas esquemas pendientes:
+       - GUI: pregunta al usuario si desea continuar
+       - CLI: continua automaticamente
+         |
+3. Generar reporte final con estadisticas
+   - Esquemas exitosos vs fallidos
    - Registros insertados por tabla
    - Inserts exitosos vs fallidos
    - Log detallado en logs/

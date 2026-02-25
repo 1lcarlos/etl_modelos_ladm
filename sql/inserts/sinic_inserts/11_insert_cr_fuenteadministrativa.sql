@@ -27,8 +27,8 @@ SELECT
 
     -- tipo: Mapeo a col_fuenteadministrativatipo
     COALESCE(
-        (SELECT t_id FROM {schema}.col_fuenteadministrativatipo WHERE ilicode = fa.tipo_fuente LIMIT 1),
-        (SELECT t_id FROM {schema}.col_fuenteadministrativatipo WHERE ilicode = 'Documento_Publico' LIMIT 1)
+        (SELECT t_id FROM {schema}.col_fuenteadministrativatipo WHERE ilicode = fa.tipo_fuente and baseclass is not null LIMIT 1),
+        (SELECT t_id FROM {schema}.col_fuenteadministrativatipo WHERE ilicode = 'Sin_Documento' and baseclass is not null LIMIT 1)
     ),
 
     -- numero_fuente

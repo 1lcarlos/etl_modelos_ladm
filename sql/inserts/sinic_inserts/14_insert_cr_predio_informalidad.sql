@@ -9,8 +9,9 @@
 INSERT INTO {schema}.cr_predio_informalidad (
     t_id,
     --t_basket,
-    predio_formal,
-    predio_informal
+    cr_predio_formal,
+    cr_predio_informal,
+    area_terreno_interseccion
 )
 SELECT
     pi.id::bigint,
@@ -31,5 +32,9 @@ SELECT
         THEN pi.predio_informal_id
         ELSE NULL
     END
+
+    -- area_terreno_interseccion
+    --,coalesce(0, pi.area_terreno_interseccion) -- Si es NULL, se asume 0
+    ,0
 
 FROM tmp_cr_predio_informalidad pi;
