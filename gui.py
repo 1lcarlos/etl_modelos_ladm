@@ -84,7 +84,6 @@ class ETLGuiApp:
         self.config_vars['origen_database'] = tk.StringVar(value='')
         self.config_vars['origen_user'] = tk.StringVar(value='postgres')
         self.config_vars['origen_password'] = tk.StringVar(value='')
-        self.config_vars['origen_schema'] = tk.StringVar(value='')
 
         # BD Destino
         self.config_vars['destino_host'] = tk.StringVar(value='localhost')
@@ -92,6 +91,8 @@ class ETLGuiApp:
         self.config_vars['destino_database'] = tk.StringVar(value='')
         self.config_vars['destino_user'] = tk.StringVar(value='postgres')
         self.config_vars['destino_password'] = tk.StringVar(value='')
+
+        # Esquema (usado en pestana Esquemas, modo single)
         self.config_vars['destino_schema'] = tk.StringVar(value='')
 
         # Rutas SQL
@@ -100,12 +101,18 @@ class ETLGuiApp:
         self.config_vars['order_file'] = tk.StringVar(value=str(BASE_DIR / 'sql' / 'insert_order.txt'))
         self.config_vars['logs_path'] = tk.StringVar(value=str(BASE_DIR / 'logs'))
 
+        # Modo de esquemas
+        self.config_vars['schema_mode'] = tk.StringVar(value='single')  # 'single' o 'multi'
+
         # Opciones
         self.config_vars['batch_size'] = tk.StringVar(value='1000')
         self.config_vars['pool_size'] = tk.StringVar(value='5')
         self.config_vars['truncate_enabled'] = tk.BooleanVar(value=True)
         self.config_vars['truncate_cascade'] = tk.BooleanVar(value=True)
         self.config_vars['dry_run'] = tk.BooleanVar(value=False)
+
+        # Lista de esquemas seleccionados (para modo multi)
+        self.selected_schemas = []
 
     def create_menu(self):
         """Crea el menú de la aplicación"""
@@ -154,6 +161,7 @@ class ETLGuiApp:
         # Crear pestañas
         self.create_origen_tab()
         self.create_destino_tab()
+        self.create_esquemas_tab()
         self.create_rutas_tab()
         self.create_opciones_tab()
 
@@ -214,7 +222,6 @@ class ETLGuiApp:
             ('Base de datos:', 'origen_database', ''),
             ('Usuario:', 'origen_user', 'postgres'),
             ('Contraseña:', 'origen_password', '', True),
-            ('Esquema:', 'origen_schema', 'Esquema de origen (ej: cca_cun25436)'),
         ]
 
         for i, (label, var_name, placeholder, *args) in enumerate(fields):
@@ -251,7 +258,6 @@ class ETLGuiApp:
             ('Base de datos:', 'destino_database', ''),
             ('Usuario:', 'destino_user', 'postgres'),
             ('Contraseña:', 'destino_password', '', True),
-            ('Esquema:', 'destino_schema', 'Esquema de destino (ej: cun25489)'),
         ]
 
         for i, (label, var_name, placeholder, *args) in enumerate(fields):
@@ -271,6 +277,179 @@ class ETLGuiApp:
         # Botón de prueba
         ttk.Button(frame, text="Probar conexión",
                    command=lambda: self.test_connection('destino')).grid(row=len(fields)+1, column=1, sticky='w', pady=10)
+
+    def create_esquemas_tab(self):
+        """Crea la pestana de seleccion de esquemas"""
+        frame = ttk.Frame(self.notebook, padding="10")
+        self.notebook.add(frame, text="Esquemas")
+
+        # Titulo
+        ttk.Label(frame, text="Modo de Migracion de Esquemas",
+                  font=('Segoe UI', 11, 'bold')).pack(anchor='w', pady=(0, 10))
+
+        # Radio buttons para modo
+        mode_frame = ttk.LabelFrame(frame, text="Modo", padding="10")
+        mode_frame.pack(fill=tk.X, pady=5)
+
+        ttk.Radiobutton(mode_frame, text="Esquema unico",
+                        variable=self.config_vars['schema_mode'],
+                        value='single',
+                        command=self._toggle_schema_mode).pack(side=tk.LEFT, padx=10)
+        ttk.Radiobutton(mode_frame, text="Multiples esquemas",
+                        variable=self.config_vars['schema_mode'],
+                        value='multi',
+                        command=self._toggle_schema_mode).pack(side=tk.LEFT, padx=10)
+
+        # Panel esquema unico
+        self.single_schema_frame = ttk.LabelFrame(frame, text="Esquema Unico", padding="10")
+        self.single_schema_frame.pack(fill=tk.X, pady=5)
+
+        single_row = ttk.Frame(self.single_schema_frame)
+        single_row.pack(fill=tk.X)
+        ttk.Label(single_row, text="Esquema:").pack(side=tk.LEFT, padx=5)
+        ttk.Entry(single_row, textvariable=self.config_vars['destino_schema'], width=40).pack(side=tk.LEFT, padx=5)
+        ttk.Label(single_row, text="(se usa como origen y destino)", foreground='gray').pack(side=tk.LEFT, padx=5)
+
+        # Panel multiples esquemas
+        self.multi_schema_frame = ttk.LabelFrame(frame, text="Multiples Esquemas", padding="10")
+        self.multi_schema_frame.pack(fill=tk.X, pady=5)
+
+        # Botones de accion
+        btn_frame = ttk.Frame(self.multi_schema_frame)
+        btn_frame.pack(fill=tk.X, pady=(0, 5))
+
+        ttk.Button(btn_frame, text="Consultar Esquemas",
+                   command=self._fetch_schemas).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="Seleccionar Todos",
+                   command=self._select_all_schemas).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="Deseleccionar Todos",
+                   command=self._deselect_all_schemas).pack(side=tk.LEFT, padx=5)
+
+        # Treeview con checkmarks para esquemas
+        tree_frame = ttk.Frame(self.multi_schema_frame)
+        tree_frame.pack(fill=tk.BOTH, expand=True, pady=5)
+
+        self.schema_tree = ttk.Treeview(tree_frame, columns=('schema',), show='tree',
+                                         height=8, selectmode='none')
+        self.schema_tree.column('#0', width=40, stretch=False)
+        self.schema_tree.column('schema', width=300)
+        self.schema_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.schema_tree.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.schema_tree.configure(yscrollcommand=scrollbar.set)
+
+        # Bind click para toggle check
+        self.schema_tree.bind('<ButtonRelease-1>', self._toggle_schema_check)
+
+        # Dict para rastrear estado checked de cada item
+        self.schema_check_states = {}
+
+        # Label de conteo
+        self.schema_count_label = ttk.Label(self.multi_schema_frame, text="Esquemas seleccionados: 0")
+        self.schema_count_label.pack(anchor='w', pady=(5, 0))
+
+        # Iniciar con modo single visible
+        self._toggle_schema_mode()
+
+    def _toggle_schema_mode(self):
+        """Alterna visibilidad entre modo unico y multiples"""
+        mode = self.config_vars['schema_mode'].get()
+        if mode == 'single':
+            self.single_schema_frame.pack(fill=tk.X, pady=5)
+            self.multi_schema_frame.pack_forget()
+        else:
+            self.single_schema_frame.pack_forget()
+            self.multi_schema_frame.pack(fill=tk.X, pady=5)
+
+    def _fetch_schemas(self):
+        """Consulta esquemas disponibles desde la BD origen"""
+        config = {
+            'host': self.config_vars['origen_host'].get(),
+            'port': int(self.config_vars['origen_port'].get()),
+            'database': self.config_vars['origen_database'].get(),
+            'user': self.config_vars['origen_user'].get(),
+            'password': self.config_vars['origen_password'].get(),
+        }
+
+        if not config['database']:
+            messagebox.showwarning("Aviso", "Configure la base de datos origen primero.")
+            return
+
+        self.log_message("Consultando esquemas disponibles...", 'info')
+
+        try:
+            db_manager = DatabaseManager(config, pool_size=1)
+            if not db_manager.create_connection_pool():
+                messagebox.showerror("Error", "No se pudo conectar a la BD origen.")
+                return
+
+            schemas = db_manager.list_schemas()
+            db_manager.close_pool()
+
+            # Limpiar treeview
+            for item in self.schema_tree.get_children():
+                self.schema_tree.delete(item)
+            self.schema_check_states.clear()
+
+            # Poblar treeview
+            for schema in schemas:
+                item_id = self.schema_tree.insert('', tk.END, text='[ ]', values=(schema,))
+                self.schema_check_states[item_id] = False
+
+            self.log_message(f"Se encontraron {len(schemas)} esquemas disponibles", 'success')
+            self._update_schema_count()
+
+        except Exception as e:
+            self.log_message(f"Error consultando esquemas: {e}", 'error')
+            messagebox.showerror("Error", f"Error al consultar esquemas:\n{e}")
+
+    def _toggle_schema_check(self, event):
+        """Toggle de check/uncheck al hacer click en un item del treeview"""
+        item = self.schema_tree.identify_row(event.y)
+        if not item:
+            return
+
+        # Toggle estado
+        checked = self.schema_check_states.get(item, False)
+        self.schema_check_states[item] = not checked
+
+        # Actualizar texto
+        if self.schema_check_states[item]:
+            self.schema_tree.item(item, text='[X]')
+        else:
+            self.schema_tree.item(item, text='[ ]')
+
+        self._update_schema_count()
+
+    def _select_all_schemas(self):
+        """Selecciona todos los esquemas"""
+        for item in self.schema_tree.get_children():
+            self.schema_check_states[item] = True
+            self.schema_tree.item(item, text='[X]')
+        self._update_schema_count()
+
+    def _deselect_all_schemas(self):
+        """Deselecciona todos los esquemas"""
+        for item in self.schema_tree.get_children():
+            self.schema_check_states[item] = False
+            self.schema_tree.item(item, text='[ ]')
+        self._update_schema_count()
+
+    def _update_schema_count(self):
+        """Actualiza el label de conteo de esquemas seleccionados"""
+        count = sum(1 for v in self.schema_check_states.values() if v)
+        self.schema_count_label.config(text=f"Esquemas seleccionados: {count}")
+
+    def _get_selected_schemas(self):
+        """Retorna lista de esquemas seleccionados en el treeview"""
+        selected = []
+        for item, checked in self.schema_check_states.items():
+            if checked:
+                values = self.schema_tree.item(item, 'values')
+                if values:
+                    selected.append(values[0])
+        return selected
 
     def create_rutas_tab(self):
         """Crea la pestaña de configuración de rutas"""
@@ -390,7 +569,6 @@ class ETLGuiApp:
                 'database': self.config_vars['origen_database'].get(),
                 'user': self.config_vars['origen_user'].get(),
                 'password': self.config_vars['origen_password'].get(),
-                'schema': self.config_vars['origen_schema'].get(),
             },
             'destino': {
                 'host': self.config_vars['destino_host'].get(),
@@ -398,8 +576,8 @@ class ETLGuiApp:
                 'database': self.config_vars['destino_database'].get(),
                 'user': self.config_vars['destino_user'].get(),
                 'password': self.config_vars['destino_password'].get(),
-                'schema': self.config_vars['destino_schema'].get(),
             },
+            'schema': self.config_vars['destino_schema'].get(),
             'paths': {
                 'queries': self.config_vars['queries_path'].get(),
                 'inserts': self.config_vars['inserts_path'].get(),
@@ -412,7 +590,9 @@ class ETLGuiApp:
                 'truncate_enabled': self.config_vars['truncate_enabled'].get(),
                 'truncate_cascade': self.config_vars['truncate_cascade'].get(),
                 'dry_run': self.config_vars['dry_run'].get(),
-            }
+                'schema_mode': self.config_vars['schema_mode'].get(),
+            },
+            'schemas': self._get_selected_schemas() if self.config_vars['schema_mode'].get() == 'multi' else []
         }
 
     def set_config_from_dict(self, config):
@@ -425,9 +605,17 @@ class ETLGuiApp:
 
         if 'destino' in config:
             for key, value in config['destino'].items():
+                if key == 'schema':
+                    # Retrocompatibilidad: schema dentro de destino -> destino_schema
+                    self.config_vars['destino_schema'].set(value)
+                    continue
                 var_name = f'destino_{key}'
                 if var_name in self.config_vars:
                     self.config_vars[var_name].set(value)
+
+        # Esquema a nivel raiz (formato nuevo)
+        if 'schema' in config:
+            self.config_vars['destino_schema'].set(config['schema'])
 
         if 'paths' in config:
             path_mapping = {
@@ -447,12 +635,29 @@ class ETLGuiApp:
                 'pool_size': 'pool_size',
                 'truncate_enabled': 'truncate_enabled',
                 'truncate_cascade': 'truncate_cascade',
-                'dry_run': 'dry_run'
+                'dry_run': 'dry_run',
+                'schema_mode': 'schema_mode'
             }
             for key, value in config['options'].items():
                 var_name = option_mapping.get(key, key)
                 if var_name in self.config_vars:
                     self.config_vars[var_name].set(value)
+
+        # Restaurar esquemas seleccionados si hay
+        if 'schemas' in config and config['schemas']:
+            # Limpiar treeview actual
+            for item in self.schema_tree.get_children():
+                self.schema_tree.delete(item)
+            self.schema_check_states.clear()
+
+            for schema in config['schemas']:
+                item_id = self.schema_tree.insert('', tk.END, text='[X]', values=(schema,))
+                self.schema_check_states[item_id] = True
+
+            self._update_schema_count()
+
+        # Actualizar visibilidad del modo
+        self._toggle_schema_mode()
 
     def new_config(self):
         """Crea una nueva configuración (valores por defecto)"""
@@ -614,11 +819,15 @@ class ETLGuiApp:
         if not os.path.isfile(order_file):
             errors.append(f"El archivo de orden no existe: {order_file}")
 
-        # Validar esquemas
-        if not self.config_vars['origen_schema'].get():
-            errors.append("Falta el esquema de origen")
-        if not self.config_vars['destino_schema'].get():
-            errors.append("Falta el esquema de destino")
+        # Validar esquemas segun modo
+        schema_mode = self.config_vars['schema_mode'].get()
+        if schema_mode == 'single':
+            if not self.config_vars['destino_schema'].get():
+                errors.append("Falta el esquema (pestana Esquemas)")
+        else:
+            selected = self._get_selected_schemas()
+            if not selected:
+                errors.append("Seleccione al menos un esquema en la pestana Esquemas")
 
         return errors
 
@@ -631,11 +840,24 @@ class ETLGuiApp:
             messagebox.showerror("Errores de configuración", error_msg)
             return
 
-        # Confirmar ejecución
+        # Confirmar ejecucion
+        schema_mode = self.config_vars['schema_mode'].get()
+        if schema_mode == 'single':
+            schemas = [self.config_vars['destino_schema'].get()]
+        else:
+            schemas = self._get_selected_schemas()
+
         if not self.config_vars['dry_run'].get():
-            if not messagebox.askyesno("Confirmar ejecución",
-                                       "¿Está seguro de ejecutar el proceso ETL?\n\n" +
-                                       "Esto modificará datos en la base de datos destino."):
+            confirm_msg = "¿Esta seguro de ejecutar el proceso ETL?\n\n"
+            if len(schemas) > 1:
+                confirm_msg += f"Se migraran {len(schemas)} esquemas:\n"
+                confirm_msg += "\n".join(f"  - {s}" for s in schemas)
+                confirm_msg += "\n\n"
+            else:
+                confirm_msg += f"Esquema: {schemas[0]}\n\n"
+            confirm_msg += "Esto modificara datos en la base de datos destino."
+
+            if not messagebox.askyesno("Confirmar ejecucion", confirm_msg):
                 return
 
         # Deshabilitar botones
@@ -698,13 +920,17 @@ class ETLGuiApp:
                 'skip_if_not_exists': True
             }
 
-            # Esquemas
-            schemas = [self.config_vars['destino_schema'].get()]
+            # Esquemas segun modo
+            schema_mode = self.config_vars['schema_mode'].get()
+            if schema_mode == 'single':
+                schemas = [self.config_vars['destino_schema'].get()]
+            else:
+                schemas = self._get_selected_schemas()
 
             self.log_message(f"BD Origen: {origen_config['host']}:{origen_config['port']}/{origen_config['database']}")
             self.log_message(f"BD Destino: {destino_config['host']}:{destino_config['port']}/{destino_config['database']}")
-            self.log_message(f"Esquema origen: {self.config_vars['origen_schema'].get()}")
-            self.log_message(f"Esquema destino: {self.config_vars['destino_schema'].get()}")
+            self.log_message(f"Modo: {'Esquema unico' if schema_mode == 'single' else 'Multiples esquemas'}")
+            self.log_message(f"Esquemas a procesar: {', '.join(schemas)}")
             self.log_message(f"Modo Dry-Run: {self.config_vars['dry_run'].get()}")
 
             self.progress_var.set(10)
@@ -721,22 +947,50 @@ class ETLGuiApp:
             self.progress_var.set(20)
             self.log_message("Conectando a bases de datos...", 'info')
 
+            # Callback de error para preguntar al usuario
+            def on_schema_error(schema_name, error_msg):
+                result = [False]
+                event = threading.Event()
+
+                def ask():
+                    result[0] = messagebox.askyesno(
+                        "Error en esquema",
+                        f"El esquema '{schema_name}' fallo:\n{error_msg}\n\n"
+                        f"¿Desea continuar con los esquemas restantes?"
+                    )
+                    event.set()
+
+                self.root.after(0, ask)
+                event.wait()
+                return result[0]
+
+            # Callback de progreso
+            def progress_callback(schema_name, index, total):
+                # Rango de progreso: 20% a 95% para el procesamiento
+                progress = 20 + (index / total) * 75
+                self.progress_var.set(progress)
+                self.root.after(0, lambda: self.status_label.config(
+                    text=f"Esquema {index+1}/{total}: {schema_name}"))
+
             # Ejecutar ETL
-            success = etl.run_etl(schemas)
+            success = etl.run_etl(schemas,
+                                  on_schema_error=on_schema_error,
+                                  progress_callback=progress_callback)
 
             self.progress_var.set(100)
 
             if success:
                 self.log_message("=" * 60)
-                self.log_message("✅ PROCESO ETL COMPLETADO EXITOSAMENTE", 'success')
+                self.log_message("PROCESO ETL COMPLETADO EXITOSAMENTE", 'success')
                 self.log_message("=" * 60)
-                self.root.after(0, lambda: messagebox.showinfo("Éxito", "El proceso ETL se completó exitosamente."))
+                self.root.after(0, lambda: messagebox.showinfo("Exito",
+                    f"El proceso ETL se completo exitosamente.\nEsquemas procesados: {len(schemas)}"))
             else:
                 self.log_message("=" * 60)
-                self.log_message("❌ PROCESO ETL COMPLETADO CON ERRORES", 'error')
+                self.log_message("PROCESO ETL COMPLETADO CON ERRORES", 'error')
                 self.log_message("=" * 60)
                 self.root.after(0, lambda: messagebox.showwarning("Advertencia",
-                                                                   "El proceso ETL terminó con errores. Revise los logs."))
+                                                                   "El proceso ETL termino con errores. Revise los logs."))
 
         except Exception as e:
             self.log_message(f"❌ Error crítico: {e}", 'error')

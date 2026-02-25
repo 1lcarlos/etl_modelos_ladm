@@ -7,7 +7,7 @@ Maneja la lógica de extracción, transformación y carga
 import os
 import glob
 import re
-from typing import List, Dict, Any, Set
+from typing import List, Dict, Any, Set, Callable, Optional
 from .database_manager import DatabaseManager
 from .logger import ETLLogger
 
@@ -555,56 +555,88 @@ class ETLProcessor:
 
             return False
     
-    def process_all_schemas(self, schemas: List[str]) -> Dict[str, Any]:
+    def process_all_schemas(self, schemas: List[str],
+                            on_schema_error: Optional[Callable[[str, str], bool]] = None,
+                            progress_callback: Optional[Callable[[str, int, int], None]] = None) -> Dict[str, Any]:
         """
         Procesa todos los esquemas en la lista
-        
+
         Args:
             schemas: Lista de nombres de esquemas a procesar
-            
+            on_schema_error: Callback al fallar un esquema. Recibe (schema, error_msg),
+                           retorna True para continuar, False para detener.
+                           Si es None, continua automaticamente.
+            progress_callback: Callback de progreso. Recibe (schema_actual, indice, total).
+
         Returns:
             Dict[str, Any]: Resumen del procesamiento
         """
         self.logger.logger.info(f"📋 Iniciando procesamiento de {len(schemas)} esquemas: {schemas}")
-        
+
         successful_schemas = []
         failed_schemas = []
-        
-        for schema in schemas:
-            self.logger.logger.info(f"🎯 Procesando esquema: {schema}")
-            
+        stopped = False
+
+        for i, schema in enumerate(schemas):
+            if stopped:
+                break
+
+            self.logger.logger.info(f"🎯 Procesando esquema {i+1}/{len(schemas)}: {schema}")
+
+            if progress_callback:
+                progress_callback(schema, i, len(schemas))
+
             try:
                 success = self.process_schema(schema)
-                
+
                 if success:
                     successful_schemas.append(schema)
                     self.logger.logger.info(f"✅ Esquema {schema} procesado exitosamente")
                 else:
                     failed_schemas.append(schema)
-                    self.logger.logger.error(f"❌ Falló el procesamiento del esquema {schema}")
-                    
+                    error_msg = f"Fallo el procesamiento del esquema {schema}"
+                    self.logger.logger.error(f"❌ {error_msg}")
+
+                    if on_schema_error and len(schemas) > 1:
+                        should_continue = on_schema_error(schema, error_msg)
+                        if not should_continue:
+                            self.logger.logger.info("⏹️ Detenido por el usuario")
+                            stopped = True
+
             except Exception as e:
                 failed_schemas.append(schema)
-                self.logger.logger.error(f"❌ Error crítico procesando esquema {schema}: {str(e)}")
-        
+                error_msg = str(e)
+                self.logger.logger.error(f"❌ Error critico procesando esquema {schema}: {error_msg}")
+
+                if on_schema_error and len(schemas) > 1:
+                    should_continue = on_schema_error(schema, error_msg)
+                    if not should_continue:
+                        self.logger.logger.info("⏹️ Detenido por el usuario")
+                        stopped = True
+
         # Resumen final
         summary = {
             'total_schemas': len(schemas),
             'successful_schemas': successful_schemas,
             'failed_schemas': failed_schemas,
             'success_count': len(successful_schemas),
-            'failed_count': len(failed_schemas)
+            'failed_count': len(failed_schemas),
+            'stopped_by_user': stopped
         }
-        
+
         return summary
     
-    def run_etl(self, schemas: List[str]) -> bool:
+    def run_etl(self, schemas: List[str],
+                on_schema_error: Optional[Callable[[str, str], bool]] = None,
+                progress_callback: Optional[Callable[[str, int, int], None]] = None) -> bool:
         """
         Ejecuta el proceso ETL completo
-        
+
         Args:
             schemas: Lista de esquemas a procesar
-            
+            on_schema_error: Callback al fallar un esquema (ver process_all_schemas)
+            progress_callback: Callback de progreso (ver process_all_schemas)
+
         Returns:
             bool: True si el proceso general fue exitoso
         """
@@ -613,19 +645,19 @@ class ETLProcessor:
             if not self.connect_databases():
                 self.logger.logger.error("❌ No se pudieron establecer las conexiones")
                 return False
-            
+
             # 2. Validar que existan los directorios necesarios
             if not self.validate_directories():
                 return False
-            
+
             # 3. Procesar todos los esquemas
-            summary = self.process_all_schemas(schemas)
-            
+            summary = self.process_all_schemas(schemas, on_schema_error, progress_callback)
+
             # 4. Generar reporte final
             self.generate_final_report(summary)
-            
+
             return summary['failed_count'] == 0
-            
+
         except Exception as e:
             self.logger.logger.error(f"❌ Error crítico en el proceso ETL: {str(e)}")
             return False

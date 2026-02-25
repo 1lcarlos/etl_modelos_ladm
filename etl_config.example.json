@@ -4,17 +4,16 @@
         "port": "5432",
         "database": "nombre_base_origen",
         "user": "usuario_origen",
-        "password": "password_origen",
-        "schema": "nombre_esquema"
+        "password": "password_origen"
     },
     "destino": {
         "host": "localhost",
         "port": "5432",
         "database": "nombre_base_destino",
         "user": "usuario_destino",
-        "password": "password_destino",
-        "schema": "nombre_esquema"
+        "password": "password_destino"
     },
+    "schema": "nombre_esquema",
     "paths": {
         "queries": "C:/ruta/al/proyecto/sql/queries/queries_sinic",
         "inserts": "C:/ruta/al/proyecto/sql/inserts/sinic_inserts",
@@ -26,6 +25,8 @@
         "pool_size": "5",
         "truncate_enabled": true,
         "truncate_cascade": true,
-        "dry_run": false
-    }
+        "dry_run": false,
+        "schema_mode": "single"
+    },
+    "schemas": ["nombre_esquema_1", "nombre_esquema_2"]
 }

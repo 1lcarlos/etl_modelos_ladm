@@ -358,6 +358,29 @@ class DatabaseManager:
             'skipped_tables': skipped_tables
         }
     
+    def list_schemas(self) -> list:
+        """
+        Lista los esquemas disponibles en la base de datos, filtrando los del sistema.
+
+        Returns:
+            list: Lista de nombres de esquemas
+        """
+        query = """
+            SELECT schema_name
+            FROM information_schema.schemata
+            WHERE schema_name NOT IN ('pg_catalog', 'information_schema', 'public', 'pg_toast', 'topology')
+              AND schema_name NOT LIKE 'pg_%'
+            ORDER BY schema_name
+        """
+        try:
+            results = self.execute_query(query)
+            schemas = [row['schema_name'] for row in results]
+            self.logger.info(f"Esquemas encontrados: {len(schemas)}")
+            return schemas
+        except Exception as e:
+            self.logger.error(f"Error listando esquemas: {str(e)}")
+            raise e
+
     def close_pool(self):
         """
         Cierra el pool de conexiones
