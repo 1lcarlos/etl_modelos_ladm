@@ -76,7 +76,6 @@
 # Informalidad (depende de predio)
 14_insert_cr_predio_informalidad.sql
 
-
 # Tramites
 017_insert_tramites.sql
 
@@ -99,3 +98,28 @@
 034_insert_col_menosccl.sql
 
 036_insert_col_masccl.sql
+
+
+#Cartografia
+
+020_insert_cc_corregimiento.sql
+
+021_insert_cc_centropoblado.sql
+
+022_insert_cc_sectorrural.sql
+
+023_insert_cc_nomenclaturavial.sql
+
+024_insert_cc_vereda.sql
+
+025_insert_cc_limitemunicipio.sql
+
+026_insert_cc_perimetrourbano.sql
+
+027_insert_cc_sectorurbano.sql
+
+028_insert_cc_localidadcomuna.sql
+
+029_insert_cc_barrio.sql
+
+030_insert_cc_manzana.sql

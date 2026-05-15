@@ -6,7 +6,7 @@ select
     t.resolution_date,
     t.numero_predial
 from
-    tmp_tramite t
+    public.tmp_tramite t
 join {schema}.gc_predio p on t.numero_predial = p.numero_predial 
 where
     /* extract(

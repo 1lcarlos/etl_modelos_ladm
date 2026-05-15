@@ -6,4 +6,5 @@ SELECT
     codigo,
     nombre,
     codigo_sector
-FROM {schema}.cc_vereda;
+FROM {schema}.cc_vereda
+where codigo is not null;

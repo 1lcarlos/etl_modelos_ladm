@@ -19,4 +19,5 @@ SELECT
     tl.localizacion_textual,
     tl.geometria,
     tl.longitud::numeric
-FROM tmp_gc_lindero tl;
+FROM tmp_gc_lindero tl
+WHERE tl.geometria IS NOT NULL;

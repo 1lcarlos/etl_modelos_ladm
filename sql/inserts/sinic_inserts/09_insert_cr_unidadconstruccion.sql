@@ -37,8 +37,13 @@ SELECT
     COALESCE(uc.planta_ubicacion::numeric, 1),
 
     -- altura
+    /* case 
+        when uc.altura = '0' then 3::numeric 
+        when uc.altura is null then 3::numeric 
+        else uc.altura::numeric 
+    end, */
     uc.altura::numeric,
-
+    
     -- geometria
     uc.geometria,
 
@@ -47,7 +52,7 @@ SELECT
         CASE
             WHEN uc.caracteristicas_id IS NOT NULL
                  AND EXISTS (SELECT 1 FROM {schema}.cr_caracteristicasunidadconstruccion c WHERE c.t_id = uc.caracteristicas_id::numeric)
-            THEN uc.caracteristicas_id
+            THEN uc.caracteristicas_id::numeric
             ELSE NULL
         END,
         (SELECT t_id FROM {schema}.cr_caracteristicasunidadconstruccion LIMIT 1)

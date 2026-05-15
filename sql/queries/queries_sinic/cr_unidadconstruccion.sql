@@ -12,7 +12,12 @@ SELECT DISTINCT ON (uc.id)
     cpt.text_code as tipo_planta,
     --,COALESCE(uc.planta, 1) as planta_ubicacion,
     COALESCE(uc.planta_ubicacion, 1) as planta_ubicacion,
-    uc.altura,
+    --uc.altura,
+    case 
+        when uc.altura = 0 then 3::numeric 
+        when uc.altura is null then 3::numeric 
+        else uc.altura::numeric 
+    end as altura,
     uc.geometria,
     uc.etiqueta,
     uc.gc_construccion as construccion_id,

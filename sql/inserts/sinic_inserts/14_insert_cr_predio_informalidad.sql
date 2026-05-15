@@ -34,7 +34,6 @@ SELECT
     END
 
     -- area_terreno_interseccion
-    --,coalesce(0, pi.area_terreno_interseccion) -- Si es NULL, se asume 0
-    ,0
+    ,COALESCE(pi.area_interseccion::numeric, 0) -- Si es NULL, se asume 0
 
 FROM tmp_cr_predio_informalidad pi;

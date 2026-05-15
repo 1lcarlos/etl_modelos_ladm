@@ -13,5 +13,6 @@ SELECT
     cn.t_id as tipo_via,
     numero_via,
     geometria
-FROM tmp_cc_nomenclaturavial
-JOIN cc_nomenclaturavial_tipo_via cn ON cn.text_code = tmp_cc_nomenclaturavial.tipo_via;
+FROM tmp_cc_nomenclaturavial nv
+JOIN {schema}.cc_nomenclaturavial_tipo_via cn ON cn.ilicode = nv.tipo_via
+where nv.geometria is not null;

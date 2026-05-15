@@ -19,15 +19,12 @@ SELECT
     --(SELECT t_id FROM {schema}.t_ili2db_basket LIMIT 1),
 
     -- coeficiente
-    pc.coeficiente::numeric,
+    coalesce(pc.coeficiente::numeric, 0), -- Si es NULL, se asume 0
+    --pc.coeficiente::numeric,
 
     --area_catastral_terreno_coeficiente
-    --coalsece(0, pc.area_catastral_terreno_coeficiente), -- Si es NULL, se asume 0
-    --pc.area_catastral_terreno_coeficiente,
-     0,
+    COALESCE(pc.area_catastral_terreno_coeficiente::numeric, 0), -- Si es NULL, se asume 0
     
-
-
     -- matriz: referencia al predio matriz
     CASE
         WHEN pc.matriz_id IS NOT NULL

@@ -27,6 +27,7 @@ SELECT DISTINCT ON (cuc.id)
     --cuc.gc_construccion as construccion_id,
     --cuc.numero_predial
 FROM {schema}.gc_caracteristicasunidadconstruccion cuc
+join {schema}.gc_unidadconstruccion uc ON cuc.id = uc.gc_caracteristicasunidadconstruccion
 LEFT JOIN {schema}.gc_unidadconstrucciontipo uct ON cuc.tipo_unidad_construccion = uct.id
 LEFT JOIN {schema}.gc_dominioconstrucciontipo dct ON cuc.tipo_dominio = dct.id
 LEFT JOIN {schema}.gc_usouconstipo uut ON cuc.uso = uut.id
