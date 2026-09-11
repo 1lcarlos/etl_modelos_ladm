@@ -1,0 +1,32 @@
+# Orden de ejecucion de INSERTs para migracion a SINIC
+# Fecha: 2026-05-022
+#
+# Este archivo define el orden correcto de ejecucion de los INSERTs
+# respetando las dependencias entre tablas.
+#
+# Formato: nombre_archivo_insert.sql
+# Las lineas que comienzan con # son comentarios
+
+# ============================================
+# FASE 1: Entidades principales independientes
+# ============================================
+
+# Predio - tabla principal
+01_insert_sinic_predio.sql
+11_insert_cr_fuenteadministrativa.sql
+12_insert_fuente_Administrativas_faltantes.sql
+16_insert_col_unidadfuente.sql
+02_insert_cr_terreno.sql
+03_insert_col_uebaunit_terreno.sql
+04_insert_col_areavalor_terreno.sql
+05_insert_interesado.sql
+06_insert_agrupacion.sql
+07_insert_interesados_agrupacion.sql
+08_insert_col_miembros.sql
+09_insert_derecho_catastral.sql
+10_insert_col_rrrfuente.sql
+13_insert_direccion.sql
+14_insert_tramite_catastral.sql
+15_insert_predio_tramite.sql
+17_insert_avaluo.sql
+

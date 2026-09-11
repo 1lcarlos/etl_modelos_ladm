@@ -1,0 +1,73 @@
+# Orden de ejecucion: modelo interno Django -> modelo interno v3 (ACC)
+# Queries : sql/queries/queries_django_a_v3_v2
+# Inserts : sql/inserts/inserts_django_a_v3_v2
+# Lineas que empiezan con # son comentarios. Para desactivar un archivo, comentarlo con #.
+
+# Preparacion del destino
+000_preparar_destino.sql
+001_mapeo_dominios.sql
+002_relajar_obligatorios.sql
+
+# Predio y sus estructuras
+010_gc_predio.sql
+011_gc_terreno.sql
+012_col_uebaunit_predio_terreno.sql
+013_extdireccion.sql
+014_gc_datosadicionaleslevantamientocatastral.sql
+015_gc_estructuraprocedimientocatastralregistral.sql
+016_gc_estructuranovedadnumeropredial.sql
+017_gc_estructuraavaluo.sql
+018_gc_predio_informalidad.sql
+019_gc_predio_copropiedad.sql
+020_gc_estructuraprediomatriznpn.sql
+021_gc_datosmatriz.sql
+022_gc_estructuraalertapredio.sql
+023_gc_estructurareferenciaregistralsistemaantiguo.sql
+
+# Interesados, derechos y fuentes administrativas
+030_gc_interesado.sql
+031_gc_agrupacioninteresados.sql
+032_col_miembros.sql
+033_gc_derechocatastral.sql
+034_gc_fuenteadministrativa.sql
+035_col_rrrfuente.sql
+036_col_unidadfuente.sql
+
+# Construccion (040 crea map_caracteristica, que usan 041, 043, 046 y 047)
+040_gc_caracteristicasunidadconstruccion.sql
+041_gc_unidadconstruccion.sql
+042_col_uebaunit_predio_unidadconstruccion.sql
+043_gc_calificacionconvencional.sql
+044_gc_grupocalificacion.sql
+045_gc_objetoconstruccion.sql
+046_gc_calificacionnoconvencional.sql
+047_gc_estructuraavaluocaracterizacion.sql
+048_col_areavalor.sql
+
+# Topografia y fuentes espaciales
+050_gc_lindero.sql
+051_gc_puntolindero.sql
+052_gc_puntocontrol.sql
+053_col_puntoccl.sql
+054_col_masccl.sql
+055_col_menosccl.sql
+056_gc_fuenteespacial.sql
+057_col_cclfuente.sql
+058_col_puntofuente.sql
+059_col_baunitfuente.sql
+060_col_uefuente.sql
+
+# Cartografia (basket LimitesOperativosCatastro). cc_nomenclaturavial omitida: cambio de geometria en v3.
+070_cc_barrio.sql
+071_cc_centropoblado.sql
+072_cc_corregimiento.sql
+073_cc_limitemunicipio.sql
+074_cc_localidadcomuna.sql
+075_cc_manzana.sql
+076_cc_perimetrourbano.sql
+077_cc_sectorrural.sql
+078_cc_sectorurbano.sql
+079_cc_vereda.sql
+
+# Conciliacion
+999_conciliacion.sql

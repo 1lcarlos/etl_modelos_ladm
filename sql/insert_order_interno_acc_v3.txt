@@ -1,0 +1,14 @@
+01_insert_predios.sql
+-02_insert_terrenos.sql
+-03_insert_col_uebaunit_predio_terreno.sql
+-04_insert_caracterisiticasunidadconstruccion.sql
+-07_insert_unidadconstruccion.sql
+-08_insert_col_uebaunit_predio_unidadconstruccion.sql
+09_insert_interesados.sql
+010_insert_agrupaciones.sql
+050_insert_interesado_agrupacion.sql
+011_insert_col_miembros.sql
+032_insert_derecho.sql
+-011_insert_extdireccion.sql
+-018_insert_gc_estructuraavaluo.sql
+
