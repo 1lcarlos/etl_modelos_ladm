@@ -10,8 +10,12 @@ Queries en `sql/queries/queries_django_a_v3_v2/`, inserts en esta carpeta y orde
 | `paths.queries` | `.../sql/queries/queries_django_a_v3_v2` |
 | `paths.inserts` | `.../sql/inserts/inserts_django_a_v3_v2` |
 | `paths.order_file` | `.../sql/insert_order_django_a_v3_v2.txt` |
-| Origen | BD Django (debe tener `public.cadaster_information`) |
+| Origen | BD Django (debe tener `public.cadaster_information` y `public.tmp_tramite`) |
 | Destino | BD v3 creada con ili2pg (BasketHandling=readWrite) |
+
+Las dos tablas de `public` viven fuera del esquema del municipio: `cadaster_information` da la
+vigencia de actualización catastral (`predio.sql`) y `tmp_tramite` los trámites de todos los
+municipios (`tramite_catastral.sql`, que filtra por el código del esquema).
 
 ## Convenciones
 
@@ -39,7 +43,8 @@ Queries en `sql/queries/queries_django_a_v3_v2/`, inserts en esta carpeta y orde
 7. **Sin datos inventados.** Si Django no tiene el dato, queda NULL (decisión 2026-09-11). Para eso
    `002_relajar_obligatorios.sql` quita el NOT NULL de los atributos obligatorios afectados; la lista
    de faltantes sale en `manual/reporte_migracion.sql` y `manual/restaurar_obligatorios.sql` los vuelve
-   a exigir. Únicas excepciones: `comienzo_vida_util_version` (fecha de carga si falta) y los valores de
+   a exigir. Únicas excepciones: `comienzo_vida_util_version` (fecha de carga si falta), la
+   `fecha_inscripcion` de los trámites (decisión 2026-09-11: la fecha de la resolución) y los valores de
    "desconocido" que trae el propio dominio (`Sin_Informacion`, `Sin_Determinar`, `No_Aplica`, `Desconocido`).
 
 ## Reglas de negocio principales
@@ -55,6 +60,8 @@ Queries en `sql/queries/queries_django_a_v3_v2/`, inserts en esta carpeta y orde
 | Derechos | `gc_derechocatastral` (Dominio / Posesión / Ocupación). |
 | Direcciones | Sin localización → NULL (sin coordenadas fijas). |
 | Puntos lindero | `desacuerdo` solo si Django lo indica; sin dato → NULL. |
+| Trámites | Un `gc_tramitecatastral` por resolución de `public.tmp_tramite` (filtrada por municipio del esquema). `fecha_inscripcion` = fecha de la resolución (`DERIVADO`); `numero_radicado` no existe en v3 (`NO_MIGRADO`); tipo sin equivalente → fila rechazada. |
+| Predio ↔ trámite | `gc_predio_tramitecatastral` enlaza por `local_id` del predio y `numero_resolucion`. No condiciona la migración de predios: los predios sin trámite se migran igual. |
 | cc_nomenclaturavial | Omitida: la geometría cambió en v3. |
 
 ## Pendientes
@@ -62,8 +69,10 @@ Queries en `sql/queries/queries_django_a_v3_v2/`, inserts en esta carpeta y orde
 - Mapeos sin equivalente (ver `SELECT * FROM etl_control.mapeo_dominio WHERE ilicode_destino IS NULL`).
 - Confirmar: `col_areavalor` como `Area_Alfanumerica`; dueño de `gc_estructuraprediomatriznpn` (unidad);
   `puntotipo` de los puntos de control.
-- Fuera de alcance: trámites (`public.tmp_tramite`), responsables de fuente, restricciones, ofertas,
-  zonas homogéneas. Las queries anteriores de trámites están en `queries_django_a_v3_ajustadas/_excluidas`.
+- Trámites: `Cancelación de predios` se mapea a `Cancelaciones.Fuerza_Mayor` y
+  `Procedimientos catastrales con efectos registrales` a `Rectificaciones.Errores_Inscripcion_Catastral`
+  (decisiones 2026-09-11); el origen no distingue más detalle.
+- Fuera de alcance: responsables de fuente, restricciones, ofertas, zonas homogéneas.
 
 ## Verificación
 

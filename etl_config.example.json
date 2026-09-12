@@ -1,4 +1,5 @@
 {
+    "flujo": "a_sinic",
     "origen": {
         "host": "servidor_origen",
         "port": "5432",
@@ -17,7 +18,7 @@
     "paths": {
         "queries": "C:/ruta/al/proyecto/sql/queries/queries_sinic",
         "inserts": "C:/ruta/al/proyecto/sql/inserts/sinic_inserts",
-        "order_file": "C:/ruta/al/proyecto/sql/insert_order.txt",
+        "order_file": "C:/ruta/al/proyecto/sql/insert_order_sinic.txt",
         "logs": "C:/ruta/al/proyecto/logs"
     },
     "options": {

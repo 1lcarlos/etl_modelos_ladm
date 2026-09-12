@@ -24,6 +24,10 @@
 022_gc_estructuraalertapredio.sql
 023_gc_estructurareferenciaregistralsistemaantiguo.sql
 
+# Tramites catastrales (requiere public.tmp_tramite en la BD origen)
+024_gc_tramitecatastral.sql
+025_gc_predio_tramitecatastral.sql
+
 # Interesados, derechos y fuentes administrativas
 030_gc_interesado.sql
 031_gc_agrupacioninteresados.sql

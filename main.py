@@ -6,6 +6,7 @@ Punto de entrada para ejecutar el proceso completo
 Uso:
     python main.py                    # Modo interactivo (pide confirmacion)
     python main.py --no-confirm       # Modo automatico (sin confirmacion)
+    python main.py --dry-run          # Simulacion: ejecuta todo y deshace los cambios al final
     python main.py --help             # Muestra ayuda
     python main.py --version          # Muestra version
     python main.py --config           # Muestra configuracion actual
@@ -30,9 +31,9 @@ from config.config import (
     DB_ORIGEN, DB_DESTINO, SCHEMAS, PATHS, PERFORMANCE, TRUNCATE_CONFIG,
     validate_config, print_config
 )
+from src import __version__
 from src.etl_processor import ETLProcessor
 
-__version__ = '2.0.0'
 __author__ = 'ETL Team'
 
 def parse_arguments():
@@ -50,7 +51,7 @@ Ejemplos de uso:
   python main.py                    Ejecuta ETL en modo interactivo
   python main.py --no-confirm       Ejecuta ETL sin pedir confirmacion (para tareas programadas)
   python main.py --config           Muestra la configuracion actual
-  python main.py --dry-run          Simula ejecucion sin hacer cambios
+  python main.py --dry-run          Simula: ejecuta todo en una transaccion y la deshace al final
 
 Para tareas programadas (Task Scheduler), use:
   python main.py --no-confirm >> logs\\cron.log 2>&1
@@ -72,7 +73,7 @@ Para tareas programadas (Task Scheduler), use:
     parser.add_argument(
         '--dry-run',
         action='store_true',
-        help='Simula la ejecucion sin hacer cambios reales'
+        help='Simula la ejecucion completa y deshace los cambios al final (ROLLBACK)'
     )
 
     parser.add_argument(
@@ -133,8 +134,9 @@ def main():
         print("  TRUNCATE: Ejecutara automaticamente sin confirmacion")
 
     if args.dry_run:
-        truncate_config['enabled'] = False
-        print("  MODO DRY-RUN: No se ejecutaran cambios reales")
+        # La simulacion se deshace al final, no hace falta confirmar el TRUNCATE
+        truncate_config['require_confirmation'] = False
+        print("  MODO SIMULACION: se ejecuta todo en una transaccion y se deshace al final (ROLLBACK)")
 
     print("=" * 80)
 
@@ -144,7 +146,8 @@ def main():
         destino_config=DB_DESTINO,
         paths=PATHS,
         performance_config=PERFORMANCE,
-        truncate_config=truncate_config
+        truncate_config=truncate_config,
+        simulate=args.dry_run
     )
 
     try:

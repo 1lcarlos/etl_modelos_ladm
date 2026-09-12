@@ -75,4 +75,15 @@ INSERT INTO "etl_control"."mapeo_dominio" (dominio, valor_origen, ilicode_destin
     ('gc_estratotipo', '3', 'Medio_Bajo_3', 'Estrato numerico'),
     ('gc_estratotipo', '4', 'Medio_4',      'Estrato numerico'),
     ('gc_estratotipo', '5', 'Medio_Alto_5', 'Estrato numerico'),
-    ('gc_estratotipo', '6', 'Alto_6',       'Estrato numerico');
+    ('gc_estratotipo', '6', 'Alto_6',       'Estrato numerico'),
+
+    -- Tipo de tramite (public.tmp_tramite) -> clasificacion de mutacion en v3.
+    -- Decisiones 2026-09-11: el origen no distingue mas detalle que este texto.
+    ('gc_mutaciontipo', 'Mutación de segunda - Englobe',                      'Mutacion_Segunda_Clase.Agregacion',             'Englobe = agregacion de predios'),
+    ('gc_mutaciontipo', 'Mutación de segunda - Desenglobe total',             'Mutacion_Segunda_Clase.Segregacion',            'Desenglobe = segregacion'),
+    ('gc_mutaciontipo', 'Mutación de segunda - Desenglobe parcial',           'Mutacion_Segunda_Clase.Segregacion',            'Desenglobe = segregacion'),
+    ('gc_mutaciontipo', 'Mutación de quinta - Inscripción de predio',         'Mutacion_Quinta_Clase.Predios_Nuevos_Formales', 'Incorporacion de predio nuevo formal'),
+    ('gc_mutaciontipo', 'Rectificación de datos que modifican avalúo',        'Rectificaciones.Errores_Inscripcion_Catastral', 'Decision: se rectifican datos mal inscritos; el cambio de avaluo es la consecuencia'),
+    ('gc_mutaciontipo', 'Rectificación de datos que no modifican avalúo',     'Rectificaciones.Errores_Inscripcion_Catastral', 'Decision: se rectifican datos mal inscritos'),
+    ('gc_mutaciontipo', 'Procedimientos catastrales con efectos registrales', 'Rectificaciones.Errores_Inscripcion_Catastral', 'Decision: correccion de area o linderos con efecto registral'),
+    ('gc_mutaciontipo', 'Cancelación de predios',                             'Cancelaciones.Fuerza_Mayor',                    'Decision: el origen no distingue la causa de la cancelacion');

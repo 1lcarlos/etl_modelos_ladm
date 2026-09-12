@@ -80,6 +80,16 @@ class ETLLogger:
         # Configurar logger principal
         logger = logging.getLogger('ETL')
         logger.setLevel(logging.INFO)
+
+        # Cerrar los handlers de una ejecución anterior (la GUI ejecuta varias veces en la misma
+        # sesión); los que agregan otros, como el visor de la GUI, se conservan
+        for handler in logger.handlers[:]:
+            if getattr(handler, 'etl_logger_handler', False):
+                handler.close()
+                logger.removeHandler(handler)
+        file_handler.etl_logger_handler = True
+        console_handler.etl_logger_handler = True
+
         logger.addHandler(file_handler)
         logger.addHandler(console_handler)
         

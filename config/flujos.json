@@ -1,0 +1,86 @@
+{
+    "_ayuda": "Flujos que aparecen en la GUI. Rutas relativas a la carpeta del proyecto. 'orden' vacio = orden alfabetico de la carpeta de inserts. 'vigente': false los muestra al final como historicos.",
+    "flujos": [
+        {
+            "id": "django_a_v3_v2",
+            "nombre": "Django → interno v3 ACC (v2)",
+            "descripcion": "Modelo interno Django (interno_acc) a modelo interno v3. Sin datos inventados; registra incidencias en etl_control.",
+            "queries": "sql/queries/queries_django_a_v3_v2",
+            "inserts": "sql/inserts/inserts_django_a_v3_v2",
+            "orden": "sql/insert_order_django_a_v3_v2.txt",
+            "vigente": true
+        },
+        {
+            "id": "v3_a_sinic_novedades",
+            "nombre": "Interno v3 → SINIC (novedades)",
+            "descripcion": "Modelo interno v3 a SINIC, orden para novedades.",
+            "queries": "sql/queries/queries_interno_v3_para_sinic",
+            "inserts": "sql/inserts/inserts_interno_v3_a_sinic",
+            "orden": "sql/insert_order_novedades_sinic.txt",
+            "vigente": true
+        },
+        {
+            "id": "v3_a_sinic_mutacion_primera",
+            "nombre": "Interno v3 → SINIC (mutación de primera)",
+            "descripcion": "Modelo interno v3 a SINIC, orden para mutación de primera clase.",
+            "queries": "sql/queries/queries_interno_v3_para_sinic",
+            "inserts": "sql/inserts/inserts_interno_v3_a_sinic",
+            "orden": "sql/insert_order_mutacion_primera_sinic.txt",
+            "vigente": true
+        },
+        {
+            "id": "cca_a_django",
+            "nombre": "CCA → modelo interno Django",
+            "descripcion": "Modelo CCA (ladm_col) al modelo interno Django (22 tablas).",
+            "queries": "sql/queries/queries_cca",
+            "inserts": "sql/inserts/insertes_modelo_interno_django",
+            "orden": "sql/insert_order_modelo_interno_django.txt",
+            "vigente": true
+        },
+        {
+            "id": "a_sinic",
+            "nombre": "Modelo interno → SINIC (versión inicial)",
+            "descripcion": "Carpetas queries_sinic / sinic_inserts.",
+            "queries": "sql/queries/queries_sinic",
+            "inserts": "sql/inserts/sinic_inserts",
+            "orden": "sql/insert_order_sinic.txt",
+            "vigente": true
+        },
+        {
+            "id": "a_ric",
+            "nombre": "Modelo interno → RIC",
+            "descripcion": "Carpetas usados_ric / inserts_ric_finales.",
+            "queries": "sql/queries/usados_ric",
+            "inserts": "sql/inserts/inserts_ric_finales",
+            "orden": "sql/insert_order_ric.txt",
+            "vigente": true
+        },
+        {
+            "id": "v3_a_django",
+            "nombre": "Interno v3 → Django (flujo inverso)",
+            "descripcion": "Modelo interno v3 al modelo Django (ver bitacora_de_consultas.md). Sin archivo de orden: se ejecuta en orden alfabético.",
+            "queries": "sql/queries/queries_interno_v3",
+            "inserts": "sql/inserts/inserts_django_from_v3",
+            "orden": "",
+            "vigente": true
+        },
+        {
+            "id": "django_a_v3_v1",
+            "nombre": "Django → interno v3 (v1)",
+            "descripcion": "Reemplazado por la v2: completaba datos faltantes con valores fijos.",
+            "queries": "sql/queries/queries_modelo_interno_django",
+            "inserts": "sql/inserts/inserts_interno_v3",
+            "orden": "sql/insert_order_interno_v3.txt",
+            "vigente": false
+        },
+        {
+            "id": "django_a_v3_acc_inicial",
+            "nombre": "Django → interno v3 ACC (inicial, parcial)",
+            "descripcion": "Reemplazado por la v2. El orden desactiva varios archivos con '-'.",
+            "queries": "sql/queries/queries_django_a_v3",
+            "inserts": "sql/inserts/inserts_django_a_v3",
+            "orden": "sql/insert_order_interno_acc_v3.txt",
+            "vigente": false
+        }
+    ]
+}
