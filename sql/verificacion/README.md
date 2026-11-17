@@ -50,8 +50,9 @@ sql/verificacion/
 
 1. **PostgreSQL** con extension `dblink` disponible
 2. **Acceso a ambas bases de datos** desde la misma maquina:
-   - ORIGEN: `host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123`
+   - ORIGEN: `host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD`
    - DESTINO: `host=localhost port=5432 dbname=actualizacion`
+   - Antes de ejecutar los scripts, reemplazar `SU_PASSWORD` (y host/puerto/base si cambian) por los datos reales de la base ORIGEN en todos los archivos `.sql` de esta carpeta.
 3. **pgAdmin 4** o **psql** conectado a la base DESTINO (puerto 5432)
 4. La migracion ETL debe haberse ejecutado previamente (las 22 tablas deben existir en el esquema `cun25436` de ambas bases)
 
@@ -332,7 +333,7 @@ Al final incluye un **resumen de discrepancias** con conteo total de coincidenci
 ## Notas Tecnicas
 
 - Los archivos usan el esquema `cun25436` hardcoded (sin placeholder `{schema}`)
-- La conexion dblink apunta a `host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123`
+- La conexion dblink apunta a `host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD`
 - Cada archivo es independiente y puede ejecutarse por separado, siempre y cuando se haya ejecutado el archivo 00 primero
 - Las condiciones WHERE en el nivel 1 replican las mismas condiciones que se usaron en los scripts de insert del ETL
 - El nivel 5 usa `CROSS JOIN LATERAL VALUES` para pivotear multiples columnas en filas individuales comparables

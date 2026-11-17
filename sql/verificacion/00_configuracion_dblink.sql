@@ -11,12 +11,12 @@ CREATE EXTENSION IF NOT EXISTS dblink;
 
 -- 2. Constante de conexion al ORIGEN
 -- Usar esta cadena en todas las consultas dblink de los archivos 01-05
--- Conexion: host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123
+-- Conexion: host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD
 
 -- 3. Test de conectividad: Leer cca_predio desde destino via dblink
 SELECT *
 FROM dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     'SELECT count(*) FROM cun25436.cca_predio'
 ) AS t(total_registros_cca_predio bigint);
 
@@ -29,7 +29,7 @@ SELECT
     'ORIGEN (CCA - puerto 5433)' AS base,
     (SELECT *
      FROM dblink(
-         'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+         'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
          'SELECT count(*)::text FROM cun25436.cca_predio'
      ) AS t(cnt text)) AS registros_cca_predio,
     'OK' AS estado

@@ -8,7 +8,7 @@
 -- ============================================================================
 
 -- Constante de conexion dblink
--- 'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123'
+-- 'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD'
 
 WITH conteos AS (
 
@@ -16,7 +16,7 @@ WITH conteos AS (
     SELECT
         '01_gc_predio' AS tabla_destino,
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(DISTINCT (p.t_id, p.numero_predial))
               FROM cun25436.cca_predio p
               LEFT JOIN cun25436.extdireccion e ON p.t_id = e.cca_predio_direccion
@@ -34,7 +34,7 @@ WITH conteos AS (
     SELECT
         '02_gc_terreno',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_terreno t
               WHERE t.geometria IS NOT NULL$$
@@ -47,7 +47,7 @@ WITH conteos AS (
     SELECT
         '03_extdireccion',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.extdireccion e
               INNER JOIN cun25436.cca_predio p ON p.t_id = e.cca_predio_direccion
@@ -61,7 +61,7 @@ WITH conteos AS (
     SELECT
         '04_col_uebaunit_terreno',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_terreno t
               WHERE t.geometria IS NOT NULL
@@ -75,7 +75,7 @@ WITH conteos AS (
     SELECT
         '05_dlc_datosadicionales',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_predio p
               WHERE p.numero_predial IS NOT NULL$$
@@ -88,7 +88,7 @@ WITH conteos AS (
     SELECT
         '06_gc_estructuranovedad',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_estructuranovedadnumeropredial e
               INNER JOIN cun25436.cca_predio p ON p.t_id = e.cca_predio_novedad_numeros_prediales
@@ -102,7 +102,7 @@ WITH conteos AS (
     SELECT
         '07_gc_construccion',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_construccion c
               WHERE c.predio IS NOT NULL$$
@@ -115,7 +115,7 @@ WITH conteos AS (
     SELECT
         '08_gc_caracteristicasuc',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_caracteristicasunidadconstruccion$$
         ) AS t(cnt bigint)),
@@ -127,7 +127,7 @@ WITH conteos AS (
     SELECT
         '09_gc_unidadconstruccion',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_unidadconstruccion uc
               WHERE uc.construccion IS NOT NULL
@@ -141,7 +141,7 @@ WITH conteos AS (
     SELECT
         '10_col_uebaunit_construccion',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_construccion c
               WHERE c.predio IS NOT NULL$$
@@ -154,7 +154,7 @@ WITH conteos AS (
     SELECT
         '11_col_uebaunit_unidadconst',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_unidadconstruccion uc
               WHERE uc.construccion IS NOT NULL
@@ -168,7 +168,7 @@ WITH conteos AS (
     SELECT
         '12_cuc_calificacionconv',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_calificacionconvencional$$
         ) AS t(cnt bigint)),
@@ -180,7 +180,7 @@ WITH conteos AS (
     SELECT
         '13_cuc_grupocalificacion',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*) * 5
               FROM cun25436.cca_calificacionconvencional$$
         ) AS t(cnt bigint)),
@@ -192,7 +192,7 @@ WITH conteos AS (
     SELECT
         '14_cuc_objetoconstruccion',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT sum(
                 CASE WHEN armazon IS NOT NULL THEN 1 ELSE 0 END +
                 CASE WHEN muros IS NOT NULL THEN 1 ELSE 0 END +
@@ -218,7 +218,7 @@ WITH conteos AS (
     SELECT
         '15_cuc_calificacionnoconv',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_caracteristicasunidadconstruccion
               WHERE tipo_anexo IS NOT NULL$$
@@ -231,7 +231,7 @@ WITH conteos AS (
     SELECT
         '16_gc_interesado',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_interesado$$
         ) AS t(cnt bigint)),
@@ -243,7 +243,7 @@ WITH conteos AS (
     SELECT
         '17_gc_agrupacioninteresados',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_agrupacioninteresados$$
         ) AS t(cnt bigint)),
@@ -255,7 +255,7 @@ WITH conteos AS (
     SELECT
         '18_col_miembros',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_miembros$$
         ) AS t(cnt bigint)),
@@ -267,7 +267,7 @@ WITH conteos AS (
     SELECT
         '19_gc_derecho',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_derecho$$
         ) AS t(cnt bigint)),
@@ -279,7 +279,7 @@ WITH conteos AS (
     SELECT
         '20_gc_fuenteadministrativa',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_fuenteadministrativa$$
         ) AS t(cnt bigint)),
@@ -291,7 +291,7 @@ WITH conteos AS (
     SELECT
         '21_col_rrrfuente',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_fuenteadministrativa_derecho$$
         ) AS t(cnt bigint)),
@@ -303,7 +303,7 @@ WITH conteos AS (
     SELECT
         '22_col_unidadfuente',
         (SELECT * FROM dblink(
-            'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+            'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
             $$SELECT count(*)
               FROM cun25436.cca_unidadfuente$$
         ) AS t(cnt bigint)),

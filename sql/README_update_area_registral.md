@@ -67,7 +67,7 @@ sed 's/{schema}/cun25436/g' update_area_registral_gc_predio.sql > update_area_re
 Si la BD CCA no esta en `localhost:5433/ladm_col`, editar la cadena de conexion en el PASO 1:
 
 ```sql
-'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123'
+'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD'
 ```
 
 ### 3. Ejecutar paso a paso

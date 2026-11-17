@@ -21,7 +21,7 @@ SELECT
     CASE WHEN valor_origen = valor_destino OR (valor_origen IS NULL AND valor_destino IS NULL) THEN 'SI' ELSE 'NO' END AS coincide
 FROM cun25436.gc_predio gp
 INNER JOIN dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     $$SELECT DISTINCT ON (p.t_id)
         p.t_id,
         p.numero_predial,
@@ -69,7 +69,7 @@ SELECT
     CASE WHEN valor_origen = valor_destino OR (valor_origen IS NULL AND valor_destino IS NULL) THEN 'SI' ELSE 'NO' END AS coincide
 FROM cun25436.gc_terreno gt
 INNER JOIN dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     $$SELECT
         t.t_id,
         t.area_terreno::text,
@@ -102,7 +102,7 @@ SELECT
     CASE WHEN valor_origen = valor_destino OR (valor_origen IS NULL AND valor_destino IS NULL) THEN 'SI' ELSE 'NO' END AS coincide
 FROM cun25436.gc_interesado gi
 INNER JOIN dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     $$SELECT
         i.t_id,
         i.documento_identidad,
@@ -138,7 +138,7 @@ SELECT
     CASE WHEN valor_origen = valor_destino OR (valor_origen IS NULL AND valor_destino IS NULL) THEN 'SI' ELSE 'NO' END AS coincide
 FROM cun25436.gc_derecho gd
 INNER JOIN dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     $$SELECT
         d.t_id,
         CASE
@@ -173,7 +173,7 @@ SELECT
     CASE WHEN valor_origen = valor_destino OR (valor_origen IS NULL AND valor_destino IS NULL) THEN 'SI' ELSE 'NO' END AS coincide
 FROM cun25436.gc_fuenteadministrativa gf
 INNER JOIN dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     $$SELECT
         f.t_id,
         f.numero_fuente,
@@ -206,7 +206,7 @@ SELECT
     CASE WHEN valor_origen = valor_destino OR (valor_origen IS NULL AND valor_destino IS NULL) THEN 'SI' ELSE 'NO' END AS coincide
 FROM cun25436.gc_construccion gc
 INNER JOIN dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     $$SELECT
         c.t_id,
         c.numero_pisos::text,
@@ -239,7 +239,7 @@ SELECT
 FROM cun25436.dlc_datosadicionaleslevantamientocatastral dlc
 INNER JOIN cun25436.gc_predio gp ON dlc.gc_predio = gp.id
 INNER JOIN dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     $$SELECT DISTINCT ON (p.t_id)
         p.t_id,
         p.observaciones,
@@ -275,7 +275,7 @@ FROM (
     SELECT o.numero_predial AS valor_origen, gp.numero_predial AS valor_destino
     FROM cun25436.gc_predio gp
     INNER JOIN dblink(
-        'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+        'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
         $$SELECT DISTINCT ON (p.t_id) p.t_id, p.numero_predial
           FROM cun25436.cca_predio p
           WHERE p.numero_predial IS NOT NULL AND p.departamento_municipio IS NOT NULL$$
@@ -293,7 +293,7 @@ FROM (
     SELECT o.documento_identidad AS valor_origen, gi.documento_identidad AS valor_destino
     FROM cun25436.gc_interesado gi
     INNER JOIN dblink(
-        'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+        'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
         $$SELECT t_id, documento_identidad FROM cun25436.cca_interesado$$
     ) AS o(cca_id bigint, documento_identidad text)
     ON gi.id = o.cca_id
@@ -313,7 +313,7 @@ SELECT
     )) AS no_coinciden
 FROM cun25436.gc_derecho gd
 INNER JOIN dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     $$SELECT t_id, fraccion_derecho FROM cun25436.cca_derecho$$
 ) AS o(cca_id bigint, fraccion_origen numeric)
 ON gd.id = o.cca_id;
@@ -333,7 +333,7 @@ FROM (
     LIMIT 100
 ) gi
 INNER JOIN dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     $$SELECT
         i.t_id,
         i.documento_identidad,

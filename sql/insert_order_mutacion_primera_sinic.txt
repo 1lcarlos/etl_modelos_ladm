@@ -27,6 +27,5 @@
 14_insert_tramite_catastral.sql
 15_insert_predio_tramite.sql
 17_insert_avaluo.sql
-18_insert_col_responsablefuente.sql
 
 

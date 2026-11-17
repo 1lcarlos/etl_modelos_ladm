@@ -44,7 +44,7 @@ DROP TABLE IF EXISTS tmp_update_area_registral;
 
 CREATE TEMP TABLE tmp_update_area_registral AS
 SELECT * FROM dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     $$
     SELECT DISTINCT ON (p.numero_predial)
         p.numero_predial,

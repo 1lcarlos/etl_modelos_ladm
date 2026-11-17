@@ -50,7 +50,7 @@ FROM (
         count(*) FILTER (WHERE gp.departamento || gp.municipio != o.dept_mun) AS no_coinciden
     FROM cun25436.gc_predio gp
     INNER JOIN dblink(
-        'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+        'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
         $$SELECT DISTINCT ON (t_id) t_id, departamento_municipio
           FROM cun25436.cca_predio
           WHERE numero_predial IS NOT NULL AND departamento_municipio IS NOT NULL$$
@@ -84,7 +84,7 @@ FROM (
         )) AS no_coinciden
     FROM cun25436.gc_predio gp
     INNER JOIN dblink(
-        'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+        'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
         $$SELECT DISTINCT ON (p.t_id) p.t_id, b.ilicode
           FROM cun25436.cca_predio p
           LEFT JOIN cun25436.cca_booleanotipo b ON p.tiene_fmi = b.t_id
@@ -117,7 +117,7 @@ FROM (
         )) AS no_coinciden
     FROM cun25436.gc_derecho gd
     INNER JOIN dblink(
-        'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+        'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
         $$SELECT t_id, fraccion_derecho
           FROM cun25436.cca_derecho$$
     ) AS o(cca_id bigint, fraccion_origen text)
@@ -133,7 +133,7 @@ SELECT
     (o.fraccion_origen::numeric / 100.0)::numeric AS esperado
 FROM cun25436.gc_derecho gd
 INNER JOIN dblink(
-    'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+    'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
     $$SELECT t_id, fraccion_derecho
       FROM cun25436.cca_derecho
       WHERE fraccion_derecho IS NOT NULL$$
@@ -219,7 +219,7 @@ FROM (
     FROM cun25436.dlc_datosadicionaleslevantamientocatastral dlc
     INNER JOIN cun25436.gc_predio gp ON dlc.gc_predio = gp.id
     LEFT JOIN dblink(
-        'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+        'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
         $$SELECT DISTINCT ON (p.t_id) p.t_id, u.nombre
           FROM cun25436.cca_predio p
           LEFT JOIN cun25436.cca_usuario u ON p.usuario = u.t_id
@@ -253,7 +253,7 @@ FROM (
         )) AS no_coinciden
     FROM cun25436.gc_derecho gd
     INNER JOIN dblink(
-        'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+        'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
         $$SELECT t_id, observacion FROM cun25436.cca_derecho$$
     ) AS o(cca_id bigint, observacion text)
     ON gd.id = o.cca_id
@@ -279,7 +279,7 @@ FROM (
         )) AS no_coinciden
     FROM cun25436.gc_fuenteadministrativa gf
     INNER JOIN dblink(
-        'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+        'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
         $$SELECT t_id, observacion FROM cun25436.cca_fuenteadministrativa$$
     ) AS o(cca_id bigint, observacion text)
     ON gf.id = o.cca_id
@@ -325,7 +325,7 @@ FROM (
         count(*) FILTER (WHERE o.loc_es_null AND ed.localizacion IS NULL) AS origen_null_destino_null
     FROM cun25436.extdireccion ed
     INNER JOIN dblink(
-        'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+        'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
         $$SELECT e.t_id, (e.localizacion IS NULL) AS loc_es_null
           FROM cun25436.extdireccion e
           INNER JOIN cun25436.cca_predio p ON p.t_id = e.cca_predio_direccion
@@ -350,7 +350,7 @@ FROM cun25436.extdireccion
 WHERE localizacion IS NOT NULL
   AND NOT EXISTS (
       SELECT 1 FROM dblink(
-          'host=localhost port=5433 dbname=ladm_col user=postgres password=carlos123',
+          'host=localhost port=5433 dbname=ladm_col user=postgres password=SU_PASSWORD',
           $$SELECT e.t_id
             FROM cun25436.extdireccion e
             WHERE e.localizacion IS NOT NULL$$
